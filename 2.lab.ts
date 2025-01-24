@@ -1,6 +1,10 @@
 // Import required modules
 import { generateKeypair, hash, sign, verify, encrypt, decrypt, generateBlindSignature, unblindSignature, bigintToString, stringToBigInt } from "./utils/rsa";
 import { gcd, modPow, randomInt } from "./utils/math";
+import fs from 'node:fs';
+
+const voters = JSON.parse(fs.readFileSync('data/voters.json', 'utf-8'));
+const candidates = JSON.parse(fs.readFileSync('data/candidates.json', 'utf-8'));
 
 function generateRandomR(n: bigint) {
     const randomBigInt = () => {
@@ -18,103 +22,73 @@ function generateRandomR(n: bigint) {
     return r;
 }
 
-const ECKeys = generateKeypair();
-const voterKeys = generateKeypair();
+const electionsCommissionKeypair = generateKeypair();
 
-console.log("Election Commission Public Key:", ECKeys.publicKey);
-console.log("Voter Public Key:", voterKeys.publicKey);
+let ballots: { decryptedBallot: bigint }[] = [];
 
-const candidates = ["Candidate 1", "Candidate 2"];
-const numSets = 10;
-const ballotSets = [];
+let ballotsHistory: any = [];
 
-for (let i = 0; i < numSets; i++) {
-    const set = candidates.map(candidate => {
-        const randomID = BigInt(randomInt(1e9, 1e10));
-        const ballot = `${candidate}-${randomID}`;
-        return {
-            ballot,
-            id: randomID
-        };
-    });
-    ballotSets.push(set);
-}
+voters.forEach((voter: any) => {
+    try{
+        //voter part
+        if(!voter.able_to_vote)throw new Error('Voter is not permitted to vote');
 
-const blindedBallots = ballotSets.map(set => {
-    return set.map(({ ballot }) => {
-        const r = generateRandomR(ECKeys.publicKey.n);
-        const { blindSignature, r: blindR } = generateBlindSignature(ballot, r, ECKeys.publicKey, ECKeys.privateKey);
-        return { blindSignature, blindR, originalBallot: ballot };
-    });
-});
+        const r = generateRandomR(electionsCommissionKeypair.publicKey.n);
 
+        let blindedBallots = [];
 
-console.log("Blinded Ballots Sent to EC:", blindedBallots);
+        const id = voter.id;
 
-const selectedSetIndex = randomInt(0, numSets - 1);
-const signedBallots = blindedBallots[selectedSetIndex].map(({ blindSignature, blindR, originalBallot }) => {
+        for(let i = 0; i < candidates.length*2; i++){
+            const ballot = `${candidates[i % candidates.length].name}-${id}`;
+            const { blindSignature, r: blindR } = generateBlindSignature(ballot, r, electionsCommissionKeypair.publicKey, electionsCommissionKeypair.privateKey);
+            blindedBallots.push({ originalBallot: ballot, blindSignature, blindR});
+        }
 
-    const signedByEC = sign(stringToBigInt(originalBallot), ECKeys.privateKey);
+        if(ballotsHistory.some((ballot: any) => blindedBallots.some((blindedBallot: any) => blindedBallot.originalBallot === ballot.originalBallot)))throw new Error('Duplicate vote');
 
-    return {
-        blindR,
-        blindSignature,
-        signedByEC,
-        originalBallot
-    };
+        const signedBallots = blindedBallots.map(ballot => {
+            const { blindSignature, blindR, originalBallot } = ballot;
+            const signedByEC = sign(stringToBigInt(originalBallot), electionsCommissionKeypair.privateKey);
+        
+            return {
+                blindR,
+                blindSignature,
+                signedByEC,
+                originalBallot
+            };
+        });
 
-    // // EC signs the blinded ballot
-    // const signedBlindedBallot = sign(blindSignature, ECKeys.privateKey);
+        ballotsHistory.push(...signedBallots);
 
-    // console.log("Signed Blinded Ballot by EC:", signedBlindedBallot);
+        //voter part
+        const selectedBallot = signedBallots[randomInt(0, signedBallots.length - 1)];
 
-    // // Voter unblinds the signature
-    // const unblindedSignature = unblindSignature(signedBlindedBallot, blindR, ECKeys.publicKey);
+        const unblindedSignature = unblindSignature(selectedBallot.blindSignature, selectedBallot.blindR, electionsCommissionKeypair.publicKey);
 
-    // return {
-    //     unblindedSignature,
-    //     originalBallot
-    // };
-});
+        if(unblindedSignature !== selectedBallot.signedByEC)throw new Error('Invalid election commission signature');
 
-// console.log("Signed Ballots Sent Back to Voter:", signedBallots);
+        const encryptedBallot = encrypt(
+            unblindedSignature,
+            electionsCommissionKeypair.publicKey
+        );
 
-const selectedBallot = signedBallots[0]; //candidate 1
+        //election commission part
 
-console.log("Selected Ballot:", selectedBallot);
+        const decryptedBallot = decrypt(encryptedBallot, electionsCommissionKeypair.privateKey);
 
-console.log("Selected Is Valid:", verify(selectedBallot.signedByEC, ECKeys.publicKey, stringToBigInt(selectedBallot.originalBallot)));
+        const voterSelectedBallot: any = signedBallots.find(ballot => ballot.signedByEC === decryptedBallot);
 
-const encryptedBallot = encrypt(
-    selectedBallot.signedByEC, // Encrypt the signed ballot, not the hash
-    ECKeys.publicKey
-);
+        if(!verify(decryptedBallot, electionsCommissionKeypair.publicKey, stringToBigInt(voterSelectedBallot.originalBallot)))throw new Error('Invalid signature');
 
-console.log("Encrypted Ballot Sent to EC:", encryptedBallot);
+        const [candidateName, voterId] = voterSelectedBallot.originalBallot.split('-');
 
-const decryptedBallot = decrypt(encryptedBallot, ECKeys.privateKey);
-
-console.log("Decrypted Ballot by EC:", decryptedBallot);
-
-const isValid = verify(
-    decryptedBallot,
-    ECKeys.publicKey,
-    stringToBigInt(selectedBallot.originalBallot)
-);
-
-console.log("Decrypted Ballot Verified by EC:", isValid);
-
-const result = {
-    candidate1Votes: 0,
-    candidate2Votes: 0
-};
-
-if (isValid) {
-    if (selectedBallot.originalBallot.includes("Candidate 1")) {
-        result.candidate1Votes++;
-    } else if (selectedBallot.originalBallot.includes("Candidate 2")) {
-        result.candidate2Votes++;
+        ballots.push({
+            decryptedBallot,
+        });
+    }catch(error){
+        console.log(`Voter ${voter.name} was unable to vote: ${error}`);
     }
-}
+});
 
-console.log("Final Tally:", result);
+fs.writeFileSync('data/ballots.json', JSON.stringify(ballots, null, 2));
