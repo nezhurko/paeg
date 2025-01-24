@@ -1,0 +1,101 @@
+[
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 1
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 1
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 1
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 1
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 2
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 3
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 4
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 5
+    },
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "id": 6
+    },
+    {
+        "name": "Maria Garcia",
+        "city": "Houston",
+        "able_to_vote": true,
+        "id": 7
+    },
+    {
+        "name": "Li Wei",
+        "city": "San Francisco",
+        "able_to_vote": false,
+        "id": 8
+    },
+    {
+        "name": "Fatima Khan",
+        "city": "Chicago",
+        "able_to_vote": true,
+        "id": 9
+    },
+    {
+        "name": "Robert Johnson",
+        "city": "Phoenix",
+        "able_to_vote": true,
+        "id": 10
+    },
+    {
+        "name": "Anna Kowalski",
+        "city": "Philadelphia",
+        "able_to_vote": false,
+        "id": 11
+    },
+    {
+        "name": "Carlos Martinez",
+        "city": "San Antonio",
+        "able_to_vote": true,
+        "id": 12
+    },
+    {
+        "name": "Sunita Patel",
+        "city": "San Diego",
+        "able_to_vote": true,
+        "id": 13
+    },
+    {
+        "name": "Chen Wei",
+        "city": "Dallas",
+        "able_to_vote": true,
+        "id": 14
+    },
+    {
+        "name": "Emily Wilson",
+        "city": "Austin",
+        "able_to_vote": false,
+        "id": 15
+    }
+]
