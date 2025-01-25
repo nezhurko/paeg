@@ -24,7 +24,7 @@ function generateRandomR(n: bigint) {
 
 const electionsCommissionKeypair = generateKeypair();
 
-let ballots: { decryptedBallot: bigint }[] = [];
+let ballots: { decryptedBallot: bigint, originalBallot: string }[] = [];
 
 let ballotsHistory: any = [];
 
@@ -85,10 +85,13 @@ voters.forEach((voter: any) => {
 
         ballots.push({
             decryptedBallot,
+            originalBallot: signedBallots.find(ballot => ballot.signedByEC === decryptedBallot)?.originalBallot ?? 'undefined',
         });
     }catch(error){
         console.log(`Voter ${voter.name} was unable to vote: ${error}`);
     }
 });
 
-fs.writeFileSync('data/ballots.json', JSON.stringify(ballots, null, 2));
+console.log(ballots);
+
+// fs.writeFileSync('data/ballots.json', JSON.stringify(ballots, null, 2));
