@@ -1,0 +1,92 @@
+[
+    {
+        "name": "James Smith",
+        "able_to_vote": true,
+        "uuid": "f3a4ed85-b702-4d88-9b93-047bde1f0e0e"
+    },
+    {
+        "name": "Michael Brown",
+        "able_to_vote": true,
+        "uuid": "3c4e8390-54d7-43f4-b9f6-8a546e8a659f"
+    },
+    {
+        "name": "John Davis",
+        "able_to_vote": true,
+        "uuid": "724ee3e5-337e-43db-bc61-ee26cfb6d482"
+    },
+    {
+        "name": "Chris Johnson",
+        "able_to_vote": true,
+        "uuid": "7b7f6678-8d1b-4559-bd5d-bc898fa4e73b"
+    },
+    {
+        "name": "David Wilson",
+        "able_to_vote": true,
+        "uuid": "9285a8ac-e727-4f5b-aee1-9baf7f2c0f8e"
+    },
+    {
+        "name": "Richard Lee",
+        "able_to_vote": true,
+        "uuid": "331f5bba-b5b8-4309-a7c6-23e89a010699"
+    },
+    {
+        "name": "Joseph Martinez",
+        "able_to_vote": true,
+        "uuid": "6c4b761e-bd71-41ce-9534-55b3b814e287"
+    },
+    {
+        "name": "Charles Garcia",
+        "able_to_vote": true,
+        "uuid": "65bf262b-67f6-403b-9ba3-2be280f5e4bc"
+    },
+    {
+        "name": "Thomas Rodriguez",
+        "able_to_vote": true,
+        "uuid": "49e5d6c3-b655-4108-8563-e5043cd60d2f"
+    },
+    {
+        "name": "Maria Garcia",
+        "able_to_vote": true,
+        "uuid": "7649e5d8-3e5f-411e-b267-78915e190ee0"
+    },
+    {
+        "name": "Li Wei",
+        "able_to_vote": false,
+        "uuid": "aa28a290-4d8d-4f7f-942b-2d156b3596a7"
+    },
+    {
+        "name": "Fatima Khan",
+        "able_to_vote": true,
+        "uuid": "4077cd50-ac1a-411d-81d8-6d0cc908f616"
+    },
+    {
+        "name": "Robert Johnson",
+        "able_to_vote": true,
+        "uuid": "8e537bbd-29e2-4c3c-82d3-f15b98a733d1"
+    },
+    {
+        "name": "Anna Kowalski",
+        "able_to_vote": false,
+        "uuid": "8b647b0d-7c22-4c92-bcc9-32e5fcd38b67"
+    },
+    {
+        "name": "Carlos Martinez",
+        "able_to_vote": true,
+        "uuid": "e5b6f8d8-0d2f-4733-8f1f-ffaadf315406"
+    },
+    {
+        "name": "Sunita Patel",
+        "able_to_vote": true,
+        "uuid": "aebadfe3-4d62-44a8-bde5-9983c03b2961"
+    },
+    {
+        "name": "Chen Wei",
+        "able_to_vote": true,
+        "uuid": "0c8b8487-b038-4b97-bc4b-2338bcc7675f"
+    },
+    {
+        "name": "Emily Wilson",
+        "able_to_vote": false,
+        "uuid": "9d3a2f8b-6cc4-40de-be8b-df2a8cde8f6e"
+    }
+]
