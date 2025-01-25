@@ -56,6 +56,8 @@ class VoteApp{
     }
 
     static vote(ballot: any, voterToken: any){
+        const uniqueUserIdByToken = decrypt(voterToken, ECKeypair.privateKey.x, ECKeypair.publicKey.p);
+
         const decryptedVote = decrypt(ballot, ECKeypair.privateKey.x, ECKeypair.publicKey.p);
 
         const [encryptedBits, keyBits] = decryptedVote.split('|');
@@ -68,6 +70,8 @@ class VoteApp{
         const decryptedBallot = decryptBBS(encryptedBallot.encryptedBits, encryptedBallot.keyBits);
 
         const [userId, candidateId] = decryptedBallot.decrypted.split('-');
+
+        if(userId !== uniqueUserIdByToken)throw new Error('Invalid token');
 
         console.log(`User: ${userId}, Candidate: ${candidateId}`);
 
@@ -83,9 +87,11 @@ const publicBbsKeypair = generateKeypairBBS();
 const votersWithTokens = voters.map((voter: any) => {
     return {
         ...voter,
-        token: encrypt(voter.uniqueNumber, ECKeypair.publicKey)
+        token: encrypt(voter.uniqueNumber.toString(), ECKeypair.publicKey)
     }
 });
+
+console.log(votersWithTokens)
 
 voters.forEach((voter: any) => {
     const voterToken = votersWithTokens.find((voterWithToken: any) => voterWithToken.uniqueNumber === voter.uniqueNumber);
