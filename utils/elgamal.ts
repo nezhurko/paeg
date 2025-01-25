@@ -1,24 +1,16 @@
 import { generateKeyPairSync, generatePrimeSync } from "node:crypto";
 import { modPow } from "./math";
 import { bigintToString, stringToBigInt } from "./rsa";
+import { ElGamal, genElGamalParams } from 'micro-rsa-dsa-dh/elgamal.js';
 
 function generateKeypairElGamal() {
-    const p = generatePrimeSync(1024, { bigint: true });
+    const params = genElGamalParams(256);
+    const elgamal = ElGamal(params);
 
-    let g;
+    const privateKey = elgamal.randomPrivateKey();
+    const publicKey = elgamal.getPublicKey(privateKey);
 
-    do {
-        g = BigInt(Math.floor(Math.random() * Number(p - 1n))) + 1n;
-    } while (g <= 1n || g >= p - 1n);
-
-    const x = BigInt(Math.floor(Math.random() * Number(p - 2n))) + 1n;
-
-    const y = modPow(g, x, p);
-
-    return {
-        publicKey: { p, g, y },
-        privateKey: { x }
-    };
+    return { publicKey, privateKey };
 }
 
 function encrypt(message: string, publicKey: { p: bigint, g: bigint, y: bigint }) {
@@ -39,14 +31,15 @@ function decrypt(encrypted: { a: bigint, b: bigint }, privateKey: bigint, p: big
 
 export { generateKeypairElGamal, encrypt, decrypt };
 
+console.log(generateKeypairElGamal());
 
 //test
-const keypair = generateKeypairElGamal();
-const message = 'Hello, world!';
+// const keypair = generateKeypairElGamal();
+// const message = 'Hello, world!';
 
-const encrypted = encrypt(message, keypair.publicKey);
-const decrypted = decrypt(encrypted, keypair.privateKey.x, keypair.publicKey.p);
+// const encrypted = encrypt(message, keypair.publicKey);
+// const decrypted = decrypt(encrypted, keypair.privateKey.x, keypair.publicKey.p);
 
-console.log(`Original message: ${message}`);
-console.log(encrypted);
-console.log(`Decrypted message: ${decrypted}`);
+// console.log(`Original message: ${message}`);
+// console.log(encrypted);
+// console.log(`Decrypted message: ${decrypted}`);

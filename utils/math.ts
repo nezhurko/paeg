@@ -59,4 +59,29 @@ function randomInt(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export { gcd, bufferToBigInt, modPow, modInv, randomInt };
+function generateRandomByCiphers(ciphers: number) {
+    if (ciphers <= 0) {
+        throw new Error("Number of ciphers must be greater than 0.");
+    }
+
+    const min = Math.pow(10, ciphers - 1); // Smallest number with the given ciphers
+    const max = Math.pow(10, ciphers) - 1; // Largest number with the given ciphers
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomDivisor(n: bigint) {
+    const divisors = [];
+    const sqrtN = BigInt(Math.floor(Math.sqrt(Number(n))));
+    for (let i = BigInt(1); i <= sqrtN; i++) {
+        if (n % i === BigInt(0)) {
+            divisors.push(i);
+            if (i !== n / i) { // Check to prevent pushing the square root twice if it's a perfect square
+                divisors.push(n / i);
+            }
+        }
+    }
+    return divisors[randomInt(0, divisors.length - 1)];
+}
+
+export { gcd, bufferToBigInt, modPow, modInv, randomInt, generateRandomByCiphers, getRandomDivisor };

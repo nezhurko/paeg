@@ -22,8 +22,8 @@ function bigintToString(bigIntValue: bigint): string {
 }
 
 function generateKeypair() {
-    const p = generatePrimeSync(2048, {bigint: true});
-    const q = generatePrimeSync(2048, {bigint: true});
+    const p = generatePrimeSync(1024, {bigint: true});
+    const q = generatePrimeSync(1024, {bigint: true});
 
     const n = p * q;
 

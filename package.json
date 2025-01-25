@@ -14,5 +14,8 @@
     "@types/node": "^22.10.10",
     "nodemon": "^3.1.9",
     "tsx": "^4.19.2"
+  },
+  "dependencies": {
+    "micro-rsa-dsa-dh": "^0.1.0"
   }
 }
