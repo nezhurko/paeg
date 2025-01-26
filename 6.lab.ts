@@ -114,7 +114,14 @@ voters.forEach((voter: any) => {
 
     const finalBallot = encrypt(encryptedBallotString, ECKeypair.publicKey); //elgamal
 
+    console.log({
+        userId,
+        ballot,
+        encryptedBallotString,
+        finalBallot
+    })
+
     VoteApp.vote(finalBallot, voterToken.token);
 });
 
-console.log(results); 
+console.log(results);

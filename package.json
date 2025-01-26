@@ -16,6 +16,7 @@
     "tsx": "^4.19.2"
   },
   "dependencies": {
+    "big-integer": "^1.6.52",
     "micro-rsa-dsa-dh": "^0.1.0"
   }
 }

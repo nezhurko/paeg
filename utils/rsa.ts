@@ -1,29 +1,29 @@
 import { generatePrimeSync } from "node:crypto";
 import { bufferToBigInt, gcd, modInv, modPow } from "./math";
 
-function stringToBigInt(str: string): bigint {
-    const encoder = new TextEncoder();
-    const bytes = encoder.encode(str);
-    let result = 0n;
-    for (let i = 0; i < bytes.length; i++) {
-        result = (result << 8n) | BigInt(bytes[i]);
-    }
-    return result;
-}
+// function stringToBigInt(str: string): bigint {
+//     const encoder = new TextEncoder();
+//     const bytes = encoder.encode(str);
+//     let result = 0n;
+//     for (let i = 0; i < bytes.length; i++) {
+//         result = (result << 8n) | BigInt(bytes[i]);
+//     }
+//     return result;
+// }
 
-function bigintToString(bigIntValue: bigint): string {
-    const bytes: number[] = [];
-    while (bigIntValue > 0n) {
-        bytes.unshift(Number(bigIntValue & 0xffn)); // Extract the last 8 bits
-        bigIntValue >>= 8n; // Shift right to process the next byte
-    }
-    const decoder = new TextDecoder();
-    return decoder.decode(new Uint8Array(bytes));
-}
+// function bigintToString(bigIntValue: bigint): string {
+//     const bytes: number[] = [];
+//     while (bigIntValue > 0n) {
+//         bytes.unshift(Number(bigIntValue & 0xffn)); // Extract the last 8 bits
+//         bigIntValue >>= 8n; // Shift right to process the next byte
+//     }
+//     const decoder = new TextDecoder();
+//     return decoder.decode(new Uint8Array(bytes));
+// }
 
 function generateKeypair() {
-    const p = generatePrimeSync(1024, {bigint: true});
-    const q = generatePrimeSync(1024, {bigint: true});
+    const p = generatePrimeSync(4028, {bigint: true});
+    const q = generatePrimeSync(4028, {bigint: true});
 
     const n = p * q;
 
@@ -65,8 +65,6 @@ function verify(signature: bigint, publicKey: {n: bigint, e: bigint}, hash: bigi
     return modPow(signature, publicKey.e, publicKey.n) === hash;
 }
 
-//new
-
 function encrypt(message: bigint, publicKey: { n: bigint; e: bigint }) {
     if (message < 0n || message >= publicKey.n) {
         throw new Error("Message out of range: 0 ≤ m < n");
@@ -75,7 +73,8 @@ function encrypt(message: bigint, publicKey: { n: bigint; e: bigint }) {
 }
 
 function decrypt(ciphertext: bigint, privateKey: { n: bigint; d: bigint }) {
-    return modPow(ciphertext, privateKey.d, privateKey.n);
+    const dectyptedBigInt = modPow(ciphertext, privateKey.d, privateKey.n);
+    return dectyptedBigInt;
 }
 
 function generateBlindSignature(message: string, r: bigint, publicKey: { n: bigint; e: bigint }, privateKey: { d: bigint; n: bigint }) {
@@ -96,7 +95,53 @@ function unblindSignature(blindSignature: bigint, r: bigint, publicKey: { n: big
     return (blindSignature * rInverse) % publicKey.n;
 }
 
-export { generateKeypair, hash, sign, verify, encrypt, decrypt, generateBlindSignature, unblindSignature, bigintToString, stringToBigInt };
+function encryptChunks(message: string, publicKey: { n: bigint; e: bigint }): bigint[] {
+    const chunkSize = publicKey.n.toString(16).length - 1; // Calculate chunk size based on key modulus
+    let messageBigInts = [];
+    for (let i = 0; i < message.length; i += chunkSize) {
+        const chunk = message.substring(i, i + chunkSize);
+        const chunkBigInt = stringToBigInt(chunk);
+        if (chunkBigInt >= publicKey.n) {
+            throw new Error("Chunk out of range, try reducing the chunk size.");
+        }
+        const encryptedChunk = modPow(chunkBigInt, publicKey.e, publicKey.n);
+        messageBigInts.push(encryptedChunk);
+    }
+    return messageBigInts;
+}
+
+function decryptChunks(chunks: bigint[], privateKey: { n: bigint; d: bigint }): string {
+    let decryptedMessage = '';
+    chunks.forEach(chunk => {
+        const decryptedChunk = modPow(chunk, privateKey.d, privateKey.n);
+        decryptedMessage += bigintToString(decryptedChunk);
+    });
+    return decryptedMessage;
+}
+
+// Helper function to convert a bigint back to a string
+function bigintToString(bigIntValue: bigint): string {
+    const bytes: number[] = [];
+    while (bigIntValue > 0n) {
+        bytes.unshift(Number(bigIntValue & 0xffn)); // Extract the last 8 bits
+        bigIntValue >>= 8n; // Shift right to process the next byte
+    }
+    const decoder = new TextDecoder();
+    return decoder.decode(new Uint8Array(bytes));
+}
+
+// Helper function to convert a string to bigint
+function stringToBigInt(str: string): bigint {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(str);
+    let result = 0n;
+    for (let i = 0; i < bytes.length; i++) {
+        result = (result << 8n) | BigInt(bytes[i]);
+    }
+    return result;
+}
+
+export { generateKeypair, hash, sign, verify, encrypt, decrypt, generateBlindSignature, unblindSignature, bigintToString, stringToBigInt, encryptChunks, decryptChunks };
 
 // function test(){
 //     const { publicKey, privateKey } = generateKeypair();

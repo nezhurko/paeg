@@ -52,11 +52,25 @@ function encrypt(message, publicKey) {
     return chunks;
 }
 
+function signElGamal(message: bigint, privateKey: bigint, p: bigint, g: bigint) {
+    const k = BigInt(Math.floor(Math.random() * Number(p - 2n))) + 1n;
+    const r = modPow(g, k, p);
+    const s = (message - privateKey * r) * modPow(k, p - 2n, p) % (p - 1n);
+    return { r, s };
+}
+
+function verifyElGamal(message: bigint, signature: { r: bigint, s: bigint }, publicKey: { p: bigint, g: bigint, y: bigint }) {
+    const { r, s } = signature;
+    const left = modPow(publicKey.y, r, publicKey.p) * modPow(r, s, publicKey.p) % publicKey.p;
+    const right = modPow(publicKey.g, message, publicKey.p);
+    return left === right;
+}
+
 function decrypt(chunks, privateKey, p) {
     return chunks.map(chunk => decryptChunk(chunk, privateKey, p)).join('');
 }
 
-export { generateKeypairElGamal, encrypt, decrypt };
+export { generateKeypairElGamal, encrypt, decrypt, signElGamal, verifyElGamal };
 
 
 //test
